@@ -48,7 +48,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    withAWS(credentials: 'e566e6da-d3de-4041-95d0-2017a57dafc5', region: 'us-east-1') { //aws-creds
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') { //aws-creds
                         sh """
                             aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
                             docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion} .
@@ -58,22 +58,22 @@ pipeline {
                 }
             }
         }
-        stage('Trigger Deploy') {
-            when{
-                expression { params.deploy }
-            }
-            steps {
-                script {
-                    build job: 'catalogue-cd',
-                    parameters: [
-                        string(name: 'appVersion', value: "${appVersion}"),
-                        string(name: 'deploy_to', value: 'dev')
-                    ],
-                    propagate: false,  // even SG fails VPC will not be effected
-                    wait: false // VPC will not wait for SG pipeline completion
-                }
-            }
-        }
+        // stage('Trigger Deploy') {
+        //     when{
+        //         expression { params.deploy }
+        //     }
+        //     steps {
+        //         script {
+        //             build job: 'catalogue-cd',
+        //             parameters: [
+        //                 string(name: 'appVersion', value: "${appVersion}"),
+        //                 string(name: 'deploy_to', value: 'dev')
+        //             ],
+        //             propagate: false,  // even SG fails VPC will not be effected
+        //             wait: false // VPC will not wait for SG pipeline completion
+        //         }
+        //     }
+        // }
         
     }
 
